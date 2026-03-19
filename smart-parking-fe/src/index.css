@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+.ant-layout-sider-trigger {
+  border-top: none !important;
+}
