@@ -1,49 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Tag, Typography, Input, Card, Image } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
+import { AdminService } from '../../services/admin.service';
+import type { ParkingSessions } from '../../types/parking.type';
 
 const { Title } = Typography;
 
 const SessionsPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
-  const [sessions, setSessions] = useState<any[]>([]);
+  const [sessions, setSessions] = useState<ParkingSessions[]>([]);
   const [searchText, setSearchText] = useState('');
 
   // 1. Tạo Mock Data bám sát bảng parking_sessions
-  const fetchMockSessions = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setSessions([
-        {
-          id: '1',
-          plate_number: '59A-123.45',
-          entry_time: '2026-03-16T08:30:00Z',
-          exit_time: null,
-          status: 'active', // Đang đỗ
-          entry_image_url: 'https://placehold.co/200x100/1677ff/white?text=59A-123.45_IN',
-          exit_image_url: null,
-        },
-        {
-          id: '2',
-          plate_number: '30F-999.99',
-          entry_time: '2026-03-15T18:00:00Z',
-          exit_time: '2026-03-16T07:15:00Z',
-          status: 'completed', // Đã rời đi
-          entry_image_url: 'https://placehold.co/200x100/4CAF50/white?text=30F-999.99_IN',
-          exit_image_url: 'https://placehold.co/200x100/f44336/white?text=30F-999.99_OUT',
-        },
-        {
-          id: '3',
-          plate_number: '43C-567.89',
-          entry_time: '2026-03-16T09:00:00Z',
-          exit_time: null,
-          status: 'active',
-          entry_image_url: 'https://placehold.co/200x100/1677ff/white?text=43C-567.89_IN',
-          exit_image_url: null,
-        }
-      ]);
-      setLoading(false);
-    }, 600);
+  const fetchMockSessions = async() => {
+    try {
+      setLoading(true);
+      const response = await AdminService.getAllParkingSessions();
+      setSessions(response.data);
+    } catch (error) {
+      console.log(error)
+    }finally{
+      setLoading(false)
+    }
+    
   };
 
   useEffect(() => {

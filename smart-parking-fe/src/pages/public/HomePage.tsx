@@ -1,41 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Typography, Row, Col, Badge, Statistic } from 'antd';
+import { Card, Typography, Row, Col, Badge, Statistic, message } from 'antd';
 import { CarOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { homeService } from '../../services/home.service';
+import type { ParkingSLots } from '../../types/parking.type';
 
 const { Title, Text } = Typography;
 
 const HomePage: React.FC = () => {
   const [loading, setLoading] = useState(false);
-  const [slots, setSlots] = useState<any[]>([]);
+  const [slots, setSlots] = useState< ParkingSLots[]>([]);
 
-  // 1. Mock Data: Giả lập 10 ô đỗ xe chia làm 2 khu A và B
-  const fetchMockSlots = () => {
+  const fetchMockSlots = async () => {
     setLoading(true);
-    setTimeout(() => {
-      setSlots([
-        { id: '1', slot_code: 'A01', status: 'available', zone: 'A' },
-        { id: '2', slot_code: 'A02', status: 'occupied', zone: 'A' },
-        { id: '3', slot_code: 'A03', status: 'available', zone: 'A' },
-        { id: '4', slot_code: 'A04', status: 'maintenance', zone: 'A' },
-        { id: '5', slot_code: 'A05', status: 'occupied', zone: 'A' },
-        { id: '6', slot_code: 'B01', status: 'available', zone: 'B' },
-        { id: '7', slot_code: 'B02', status: 'available', zone: 'B' },
-        { id: '8', slot_code: 'B03', status: 'occupied', zone: 'B' },
-        { id: '9', slot_code: 'B04', status: 'available', zone: 'B' },
-        { id: '10', slot_code: 'B05', status: 'available', zone: 'B' },
-      ]);
-      setLoading(false);
-    }, 500);
+    try {
+      const response = await homeService.getAllParkingSlot();
+      console.log("response", response);
+      setSlots(response.data)
+    } catch (error) {
+      console.log(error)
+    }finally{
+      setLoading(false)
+    }
   };
+
+
 
   useEffect(() => {
     fetchMockSlots();
   }, []);
 
+
   // Tính toán số lượng chỗ trống
   const availableCount = slots.filter(s => s.status === 'available').length;
   const totalCount = slots.length;
 
+  
   // Hàm render giao diện từng ô đỗ xe
   const renderSlot = (slot: any) => {
     let bgColor = '#f5f5f5'; // Mặc định là xám (Bảo trì)
@@ -104,14 +103,14 @@ const HomePage: React.FC = () => {
       {/* Phần 2: Sơ đồ Khu vực A */}
       <Card title="📍 Khu Vực A" className="shadow-sm" headStyle={{ backgroundColor: '#fafafa', fontWeight: 'bold' }}>
         <Row gutter={[16, 16]}>
-          {slots.filter(s => s.zone === 'A').map(renderSlot)}
+          {slots.filter(s => s.slot_code.startsWith('A')).map(renderSlot)}
         </Row>
       </Card>
 
       {/* Phần 3: Sơ đồ Khu vực B */}
       <Card title="📍 Khu Vực B" className="shadow-sm" headStyle={{ backgroundColor: '#fafafa', fontWeight: 'bold' }}>
         <Row gutter={[16, 16]}>
-          {slots.filter(s => s.zone === 'B').map(renderSlot)}
+          {slots.filter(s => s.slot_code.startsWith('B')).map(renderSlot)}
         </Row>
       </Card>
 
